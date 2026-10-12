@@ -12,9 +12,9 @@
 
 **Team Members:**
 - Zihan Guo
-- Member 2 (TBD)
-- Member 3 (TBD)
-- Member 4 (TBD)
+- Changming Qiu
+- Parker McKillop
+- Rowan Lowden
 
 ## 2. Abstract
 
@@ -106,3 +106,33 @@ We plan to complete the following technical tasks:
 5. Develop a benchmarking framework to measure waiting
    time, turnaround time, and scheduling fairness under
    different workloads.
+
+## 6. Experimental Design
+
+We will evaluate two batch scheduling policies: FIFO and
+priority-based scheduling.
+
+Both policies will execute the same set of batch jobs on
+the same Ubuntu virtual machine.
+
+Each job will have a predefined priority level and an
+estimated workload size. All jobs will be submitted before
+batch execution begins.
+
+The scheduler will execute one job at a time to ensure
+that the comparison focuses on job selection order.
+
+For each experiment, we will record job submission time,
+start time, completion time, and execution order.
+
+We will compare average waiting time, average turnaround
+time, and waiting time across different priority levels.
+
+We will also examine whether high-priority jobs benefit
+at the expense of low-priority jobs.
+
+Each workload will be tested under both scheduling policies
+using repeated trials.
+
+The results will help us evaluate the benefits and
+trade-offs of priority-based scheduling.
