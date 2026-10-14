@@ -110,7 +110,26 @@ These tasks will allow us to build a working shell while keeping the research ex
 
 ### Experimental Environment
 
-All experiments will be conducted on the same Ubuntu virtual machine.
+All experiments will be conducted on the same Ubuntu container.
+
+```text
+Running experiments in a container instead of a VM is massively beneficial for accurate measurements. Instead of virtual cpus being scheduled on the physical cpu, the container has direct access to the host hardware, getting rid of one level of abstraction that would cause false latency in our results. As this is running on a private proxmox hypervisor, we have control of the processes running outside of the container. This will allow us to disable unused processes on the host (like other vms and containers), during data collection.  It also ensures that we're not measuring additional context switches between host and vm. In short, this is a much cleaner option as we're avoiding hardware virtualization and outside process interference.
+
+All team members have access to this virtual machine via a combination of tailscale, SSH, and RDP.
+```
+
+  | Host | |
+  |---|---|
+  | Hypervisor | Proxmox VE 8.3.0 |
+  | CPU | Intel Xeon E3-1230 v5 @ 3.40 GHz: 1 socket, 4 cores, 8 threads (Hyper-Threading)|
+  | Memory | 32 GB |
+  
+  |Container||
+  |---|---|
+  | Type | LXC, privileged |
+  | OS | Ubuntu 24.04.5|
+  | CPU | 4 hardware threads, pinned to host threads 2, 3, 6, and 7 |
+  | Memory | 6GB |
 
 Both scheduling policies will execute the same sets of batch jobs under similar system conditions.
 
