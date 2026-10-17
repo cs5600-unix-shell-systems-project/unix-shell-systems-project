@@ -13,7 +13,7 @@ CFLAGS = -Wall -g
 TARGET = shell
 
 # All the .c files to compile.
-SRCS = src/main.c src/scheduler.c
+SRCS = src/main.c src/scheduler.c src/priority.c
 
 # Build the program from the source files.
 $(TARGET): $(SRCS)
