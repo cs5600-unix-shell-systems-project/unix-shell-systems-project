@@ -13,12 +13,12 @@ Scheduling-focused sources: proportional-share scheduling, OSTEP scheduling chap
 - **Summary**: This paper introduces lottery scheduling, a randomized way to share a resource in proportion to each job's weight. Each job holds tickets. A random draw picks the next job, so jobs with more tickets run more often. The authors built a prototype on the Mach microkernel and measured low overhead.
 - **Relevance**: Our research extension compares scheduling policies by how they divide waiting time across jobs of different importance. Lottery scheduling is a proportional-share baseline. It gives us a reference point for thinking about fairness, which is one of our evaluation metrics. We studied it in HW3, so it directly informs our policy design.
 
-### [Book] Operating Systems: Three Easy Pieces — Scheduling chapters
+### [Academic paper] ghOSt: Fast and Flexible User-Space Delegation of Linux Scheduling
 
-- **Citation**: R. H. Arpaci-Dusseau and A. C. Arpaci-Dusseau. Operating Systems: Three Easy Pieces. Arpaci-Dusseau Books, version 1.10. Chapters 7 (Scheduling: Introduction), 8 (Multi-Level Feedback Queue), and 9 (Lottery Scheduling). https://pages.cs.wisc.edu/~remzi/OSTEP/ (retrieved 2026-10-17).
-- **Category**: Book
-- **Summary**: These chapters explain core CPU scheduling ideas. Chapter 7 covers basic metrics like turnaround time and response time. Chapter 8 covers the multi-level feedback queue. Chapter 9 covers proportional-share and lottery scheduling.
-- **Relevance**: The metrics defined in Chapter 7, especially turnaround time and waiting time, are the exact metrics our benchmarking framework measures. These chapters set the vocabulary and the baseline concepts for our FIFO versus priority comparison.
+- **Citation**: J. T. Humphries, N. Natu, A. Chaugule, O. Weisse, B. Rhoden, J. Don, L. Rizzo, O. Rombakh, P. Turner, and C. Kozyrakis. "ghOSt: Fast and Flexible User-Space Delegation of Linux Scheduling." Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP '21), 2021, pp. 588–604. https://dl.acm.org/doi/10.1145/3477132.3483542 (retrieved 2026-10-17).
+- **Category**: Academic paper
+- **Summary**: ghOSt is a framework from Google that moves Linux scheduling decisions out of the kernel and into user-space agents. The kernel only reports events. A user-space agent decides what runs where, then commits the decision back to the kernel. It supports many policy styles with low overhead.
+- **Relevance**: Our batch scheduler also runs in user space and controls launch order without changing the kernel. ghOSt is a modern, real-world example of the same design choice at production scale. It confirms that user-space scheduling is a valid and current research direction, which supports our project's approach.
 
 ### [Source code] bheap — a binary heap library in C
 
