@@ -1,3 +1,13 @@
+# Research Extension Update
+
+Our research direction has not changed since Sprint 1. We still compare two batch scheduling policies, FIFO and priority, measuring how each distributes waiting time and turnaround time across jobs of different priority levels.
+
+The literature we reviewed confirmed this direction. The Lottery Scheduling paper (Waldspurger and Weihl, 1994) shows that proportional-share policies are a well-studied way to reason about fairness, which is one of our metrics. The ghOSt paper (Humphries et al., SOSP 2021) shows that running scheduling policies in user space, without changing the kernel, is a valid and current approach at production scale. This matches our own design, where the batch scheduler runs in user space and controls launch order only.
+
+Based on these sources, we keep our original hypothesis: priority scheduling does not reduce total makespan, but redistributes waiting time from high-priority jobs to low-priority jobs. No scope or hypothesis change is needed for this sprint.
+
+------------------------------------------------------------------
+
 # Annotated Bibliography
 
 This bibliography collects at least 12 sources across five categories: academic papers, books, engineering blogs, community discourse, and source code. At least two entries are source code linked to a specific function or struct. Each team member maintains their own section below.
