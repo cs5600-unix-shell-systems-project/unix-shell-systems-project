@@ -2,3 +2,4 @@
 benchmarks/*.csv
 shell
 benchmarks/*.txt
+scheduler-demo

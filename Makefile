@@ -1,24 +1,28 @@
-# Makefile for the UNIX shell project.
-# Run `make` to build. Run `make clean` to remove built files.
 
-# The compiler to use.
 CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -g
 
-# Compiler flags.
-# -Wall turns on all common warnings.
-# -g adds debug info.
-CFLAGS = -Wall -g
-
-# The name of the final program.
 TARGET = shell
+DEMO_TARGET = scheduler-demo
 
-# All the .c files to compile.
-SRCS = src/main.c src/scheduler.c src/priority.c
+SHELL_SRCS = src/shell.c src/executor.c src/scheduler.c src/priority.c
+DEMO_SRCS = src/main.c src/scheduler.c src/priority.c
 
-# Build the program from the source files.
-$(TARGET): $(SRCS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
+.PHONY: all test clean
 
-# Remove the built program.
+all: $(TARGET)
+
+$(TARGET): $(SHELL_SRCS)
+	$(CC) $(CFLAGS) -o $@ $(SHELL_SRCS)
+
+$(DEMO_TARGET): $(DEMO_SRCS)
+	$(CC) $(CFLAGS) -o $@ $(DEMO_SRCS)
+
+test:
+	$(CC) $(CFLAGS) -o /tmp/test_executor tests/test_executor.c src/executor.c
+	/tmp/test_executor
+	$(CC) $(CFLAGS) -o /tmp/test_executor_error tests/test_executor_error.c src/executor.c
+	/tmp/test_executor_error
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(DEMO_TARGET)
