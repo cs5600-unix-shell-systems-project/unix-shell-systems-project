@@ -40,6 +40,32 @@ Scheduling-focused sources: proportional-share scheduling, OSTEP scheduling chap
 
 ## Zihan Guo
 
+### [4] S. R. Bourne, "UNIX Time-Sharing System: The UNIX Shell," Bell System Technical Journal, Vol. 57, No. 6, pp. 1971–1990, 1978. [Link](https://doi.org/10.1002/j.1538-7305.1978.tb02139.x)
+
+**Category:** Academic Paper
+
+**Summary:** Bourne presents the UNIX shell as both a command interpreter and a programming language. The paper describes command interpretation, argument passing, and the use of command return codes in execution control. It establishes the shell's role as an interface between users and UNIX system facilities.
+
+**Relevance:** Our `shell.c` implements a command loop that accepts user input and dispatches commands, while `executor.c` launches external programs and handles their exit statuses. Bourne's discussion of command interpretation and execution provides a foundational reference for these components. Our project extends this basic shell model with `submit`, `run fifo`, and `run priority` commands to compare different batch job ordering policies.
+
+### [5] GNU Bash Project, "GNU Bash 5.3: execute_cmd.c," GNU Bash Source Repository, 2025. [Link](https://gitea.psi.ch/pmodules/bash/src/commit/b8c60bc9ca365f8261fa97900b6fa939f6ebc303/execute_cmd.c)
+
+**Category:** Source Code
+
+**Specific code:** `execute_disk_command()` (line 5771) and `shell_execve()` (line 6126) in `execute_cmd.c`, GNU Bash 5.3, commit `b8c60bc9ca365f8261fa97900b6fa939f6ebc303`. The linked file is a fixed-commit mirror of the [official GNU Bash repository](https://git.savannah.gnu.org/git/bash.git).
+
+**Summary:** The `execute_disk_command()` function searches for external commands and uses `make_child()` to create a child process when needed. It prepares arguments and invokes `shell_execve()`, which calls `execve()` to execute the selected program. The implementation also handles execution failures and command-related file descriptor operations.
+
+**Relevance:** Our shell uses `fork()`, `execvp()`, and `waitpid()` to execute commands and retrieve exit statuses. Examining Bash's implementation illustrates how process creation, program execution, and error handling can be separated into distinct responsibilities. This informs our `run_job()` design, while the FIFO and priority schedulers determine which submitted job should execute next.
+
+### [6] Kristian Köhntopp, "fork, exec, wait and exit," Percona Community, 2021. [Link](https://percona.community/blog/2021/01/04/fork-exec-wait-and-exit/)
+
+**Category:** Blog
+
+**Summary:** Köhntopp explains the UNIX process lifecycle through practical C examples involving `fork()`, `wait()`, `execl()`, and process termination. The article demonstrates how parent processes create children, execute external programs, and collect termination statuses. It also uses `strace` output to examine how Bash launches commands and waits for their completion.
+
+**Relevance:** Our shell executor uses `fork()`, `execvp()`, and `waitpid()` to launch external commands and retrieve their exit statuses. The article clarifies the distinction between process creation and program execution, as well as the importance of collecting child termination statuses. These concepts support our sequential batch execution model, where FIFO or priority scheduling selects the next submitted job.
+
 ## Parker McKillop
 
 ## Rowan Lowden
