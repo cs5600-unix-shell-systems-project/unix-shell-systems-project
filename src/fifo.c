@@ -1,7 +1,7 @@
-// scheduler.c
-// Implements the FIFO scheduler declared in scheduler.h.
+// fifo.c
+// Implements the FIFO scheduler declared in fifo.h.
 
-#include "scheduler.h"
+#include "fifo.h"
 
 // Set up an empty queue before use.
 void fifo_init(FifoQueue *queue) {
