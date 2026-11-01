@@ -5,8 +5,8 @@ CFLAGS = -Wall -Wextra -std=c11 -g
 TARGET = shell
 DEMO_TARGET = scheduler-demo
 
-SHELL_SRCS = src/shell.c src/executor.c src/scheduler.c src/priority.c
-DEMO_SRCS = src/main.c src/scheduler.c src/priority.c
+SHELL_SRCS = src/shell.c src/executor.c src/fifo.c src/priority.c
+DEMO_SRCS = src/scheduler_demo.c src/fifo.c src/priority.c
 
 .PHONY: all test clean
 

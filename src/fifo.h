@@ -1,9 +1,9 @@
-// scheduler.h
+// fifo.h
 // Declares the FIFO scheduler interface.
 // Other files include this header to use the scheduler.
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef FIFO_H
+#define FIFO_H
 
 #include "job.h"
 

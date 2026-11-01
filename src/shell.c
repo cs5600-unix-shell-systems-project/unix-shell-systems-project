@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "executor.h"
-#include "scheduler.h"
+#include "fifo.h"
 #include "priority.h"
 
 #define INPUT_SIZE 1024
