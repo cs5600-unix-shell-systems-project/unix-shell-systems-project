@@ -14,29 +14,41 @@ This bibliography collects at least 12 sources across five categories: academic 
 
 ## Changming Qiu
 
-Scheduling-focused sources: proportional-share scheduling, OSTEP scheduling chapters, and a binary heap implementation for the priority scheduler.
+Scheduling-focused sources: proportional-share scheduling, user-space scheduling, a binary heap implementation, and Linux process APIs.
 
-### [Academic paper] Lottery Scheduling: Flexible Proportional-Share Resource Management
+### [1] C. A. Waldspurger and W. E. Weihl, "Lottery Scheduling: Flexible Proportional-Share Resource Management," Proceedings of the First USENIX Symposium on Operating Systems Design and Implementation (OSDI '94), 1994. [Link](https://www.usenix.org/conference/osdi-94/lottery-scheduling-flexible-proportional-share-resource-management)
 
-- **Citation**: C. A. Waldspurger and W. E. Weihl. "Lottery Scheduling: Flexible Proportional-Share Resource Management." Proceedings of the First USENIX Symposium on Operating Systems Design and Implementation (OSDI '94), Monterey, CA, November 1994. https://www.usenix.org/legacy/publications/library/proceedings/osdi/full_papers/waldspurger.pdf (retrieved 2026-10-17).
-- **Category**: Academic paper
-- **Summary**: This paper introduces lottery scheduling, a randomized way to share a resource in proportion to each job's weight. Each job holds tickets. A random draw picks the next job, so jobs with more tickets run more often. The authors built a prototype on the Mach microkernel and measured low overhead.
-- **Relevance**: Our research extension compares scheduling policies by how they divide waiting time across jobs of different importance. Lottery scheduling is a proportional-share baseline. It gives us a reference point for thinking about fairness, which is one of our evaluation metrics. We studied it in HW3, so it directly informs our policy design.
+**Category:** Academic Paper
 
-### [Academic paper] ghOSt: Fast and Flexible User-Space Delegation of Linux Scheduling
+**Summary:** This paper introduces lottery scheduling, a randomized way to share a resource in proportion to each job's weight. Each job holds tickets. A random draw picks the next job, so jobs with more tickets run more often.
 
-- **Citation**: J. T. Humphries, N. Natu, A. Chaugule, O. Weisse, B. Rhoden, J. Don, L. Rizzo, O. Rombakh, P. Turner, and C. Kozyrakis. "ghOSt: Fast and Flexible User-Space Delegation of Linux Scheduling." Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP '21), 2021, pp. 588–604. https://dl.acm.org/doi/10.1145/3477132.3483542 (retrieved 2026-10-17).
-- **Category**: Academic paper
-- **Summary**: ghOSt is a framework from Google that moves Linux scheduling decisions out of the kernel and into user-space agents. The kernel only reports events. A user-space agent decides what runs where, then commits the decision back to the kernel. It supports many policy styles with low overhead.
-- **Relevance**: Our batch scheduler also runs in user space and controls launch order without changing the kernel. ghOSt is a modern, real-world example of the same design choice at production scale. It confirms that user-space scheduling is a valid and current research direction, which supports our project's approach.
+**Relevance:** Our research extension compares how scheduling policies divide waiting time across jobs of different importance. Lottery scheduling is a classic proportional-share reference point for fairness, which is one of our evaluation concerns.
 
-### [Source code] bheap — a binary heap library in C
+### [2] J. T. Humphries, N. Natu, A. Chaugule, O. Weisse, B. Rhoden, J. Don, L. Rizzo, O. Rombakh, P. Turner, and C. Kozyrakis, "ghOSt: Fast and Flexible User-Space Delegation of Linux Scheduling," Proceedings of the 28th ACM Symposium on Operating Systems Principles (SOSP '21), 2021, pp. 588–604. [Link](https://dl.acm.org/doi/10.1145/3477132.3483542)
 
-- **Citation**: R. Kota. bheap: Binary heap library written in C. GitHub repository, 2018. https://github.com/octarect/bheap (retrieved 2026-10-17).
-- **Category**: Source code
-- **Specific code**: The push and pop functions in bheap.c, bheap_push and bheap_pop. https://github.com/octarect/bheap/blob/master/bheap.c
-- **Summary**: A small, readable C library that implements a binary heap. bheap_push inserts an item with a key and swims it up to keep heap order. bheap_pop removes the top item and sinks the last element down to restore order. The README shows a three-item example where pop returns items in key order.
-- **Relevance**: Our priority scheduler uses a linear scan in the Sprint 2 skeleton. Sprint 3 replaces it with a binary heap for O(log n) insert and remove. This library shows a clean push/pop pattern we can learn from when we write our own heap. It connects directly to our design challenge of keeping the highest-priority job fast to retrieve.
+**Category:** Academic Paper
+
+**Summary:** ghOSt is a framework from Google that moves Linux scheduling decisions into user-space agents. The kernel reports events, and a user-space agent decides what runs where. It supports many policies with low overhead.
+
+**Relevance:** Our batch scheduler also runs in user space and controls launch order without changing the kernel. ghOSt is a recent, production-scale example of the same design choice, which supports our approach.
+
+### [3] R. Kota, "bheap: Binary heap library written in C," GitHub repository, 2018. [Link](https://github.com/octarect/bheap/blob/master/bheap.c)
+
+**Category:** Source Code
+
+**Specific code:** `bheap_push` and `bheap_pop` in `bheap.c`.
+
+**Summary:** A small, readable C library that implements a binary heap. `bheap_push` inserts an item and moves it up to keep heap order. `bheap_pop` removes the top item and moves the last element down to restore order.
+
+**Relevance:** Our priority scheduler uses a linear scan in the Sprint 2 skeleton. In Sprint 3 we will replace it with a binary heap for O(log n) insert and remove. This code shows a clean push and pop pattern we can follow, while we keep our own tie-break by submission order.
+
+### [7] M. Kerrisk, "The Linux Programming Interface: A Linux and UNIX System Programming Handbook," No Starch Press, 2010. Chapters 24–27. [Link](https://www.nostarch.com/tlpi)
+
+**Category:** Book
+
+**Summary:** Chapters 24 to 27 cover the life cycle of a process on Linux. Chapter 24 explains fork(), and shows that after fork() returns, two processes exist and both continue from that point. Chapters 25 to 27 cover termination with exit() and _exit(), waiting for children with waitpid(), and running a new program with the exec() family.
+
+**Relevance:** Our executor's run_job() follows this exact pattern: fork, execvp in the child, waitpid in the parent, then decode the exit status. These chapters explain why the child calls _exit() after a failed exec, and how WIFEXITED and WEXITSTATUS read the status our scheduler reports for each job.
 
 ## Zihan Guo
 
