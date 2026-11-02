@@ -78,6 +78,14 @@ Scheduling-focused sources: proportional-share scheduling, user-space scheduling
 
 **Relevance:** Our shell executor uses `fork()`, `execvp()`, and `waitpid()` to launch external commands and retrieve their exit statuses. The article clarifies the distinction between process creation and program execution, as well as the importance of collecting child termination statuses. These concepts support our sequential batch execution model, where FIFO or priority scheduling selects the next submitted job.
 
+### [8] D.C., "How to avoid starving out lower-priorly work item sources," Stack Overflow, Feb. 7, 2017. [Link](https://stackoverflow.com/questions/42098351/how-to-avoid-starving-out-lower-priorly-work-item-sources)
+
+**Category:** Community Discourse
+
+**Summary:** This Stack Overflow discussion examines starvation in priority-based work scheduling. It introduces priority aging as a way to increase the effective priority of jobs that have waited for a long time, reducing the risk that lower-priority jobs will be indefinitely delayed.
+
+**Relevance:** Our project implements FIFO and priority-based batch scheduling to compare job execution order and scheduling behavior. The discussion highlights a potential fairness limitation of strict priority scheduling, where lower-priority jobs may experience long waiting times. Priority aging is a possible future improvement to our scheduler, although it is not implemented in Sprint 2.
+
 ## Parker McKillop
 
 ## Rowan Lowden
