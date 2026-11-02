@@ -11,12 +11,12 @@ Every person must verify their own citations: link opens, author and title corre
 
 | Deliverable | Location | Status |
 |---|---|---|
-| Bibliography, 12+ sources | docs/bibliography.md | In progress |
-| Research Extension Update | top of bibliography.md | Not started |
+| Bibliography, 12+ sources | docs/bibliography.md | In progress: 7 of 12 |
+| Research Extension Update | top of bibliography.md | Done |
 | UML update or justification | docs/ | Not started |
-| Skeleton code | src/ + README.md | Scheduler done, shell core pending |
-| AI reflection, one per person | docs/ai-reflections.md | 1 of 4 done |
-| Admin: tag + Canvas + tracker | GitHub + Canvas | Not started |
+| Skeleton code | src/ + README.md | Code done. README needs language and build steps |
+| AI reflection, one per person | docs/ai-reflections.md | 2 of 3 done. Rowan pending. Parker exempt |
+| Admin: dev to main, tag, Canvas | GitHub + Canvas | Not started |
 
 ## Every person must do
 
