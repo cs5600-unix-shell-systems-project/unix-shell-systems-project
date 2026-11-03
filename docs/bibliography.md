@@ -50,6 +50,22 @@ Scheduling-focused sources: proportional-share scheduling, user-space scheduling
 
 **Relevance:** Our executor's run_job() follows this exact pattern: fork, execvp in the child, waitpid in the parent, then decode the exit status. These chapters explain why the child calls _exit() after a failed exec, and how WIFEXITED and WEXITSTATUS read the status our scheduler reports for each job.
 
+### [9] W. R. Stevens and S. A. Rago, "Advanced Programming in the UNIX Environment," 3rd ed., Addison-Wesley, 2013. Chapters 8 and 9. [Link](https://www.pearson.com/en-us/subject-catalog/p/advanced-programming-in-the-unix-environment/P200000000628)
+
+**Category:** Book
+
+**Summary:** Chapter 8 covers process control: fork, the exit functions, wait and waitpid, and process scheduling with nice values. Chapter 9 covers process relationships: process groups, sessions, job control, and how a shell executes programs.
+
+**Relevance:** Section 8.16 explains that the kernel already schedules running processes, which clarifies what our user-space scheduler controls: only the launch order of batch jobs. Section 9.9 shows how a real shell executes programs, which is the model our executor follows. Sections 9.4 and 9.8 describe job control, which we plan for background processes in Sprint 3.
+
+### [10] J. Corbet, "The extensible scheduler class," LWN.net, 2023. [Link](https://lwn.net/Articles/922405/)
+
+**Category:** Blog
+
+**Summary:** This article describes sched_ext, a patch set that adds a new Linux scheduling class called SCHED_EXT. The scheduling policy is written as BPF programs and can be loaded and replaced without rebooting. If no BPF scheduler is loaded, tasks in this class run as normal tasks, and the kernel keeps safety checks so a faulty scheduler cannot take over the system.
+
+**Relevance:** Our research extension swaps one scheduling policy for another on the same workload. sched_ext shows the same idea in the real Linux kernel: keep the mechanism fixed and make the policy replaceable. Like ghOSt, it supports our view that comparing pluggable policies is a current and practical research direction.
+
 ## Zihan Guo
 
 ### [4] S. R. Bourne, "UNIX Time-Sharing System: The UNIX Shell," Bell System Technical Journal, Vol. 57, No. 6, pp. 1971–1990, 1978. [Link](https://doi.org/10.1002/j.1538-7305.1978.tb02139.x)
@@ -88,4 +104,8 @@ Scheduling-focused sources: proportional-share scheduling, user-space scheduling
 
 ## Parker McKillop
 
+Exempt from Sprint 2 by instructor accommodation.
+
 ## Rowan Lowden
+
+No longer on the team.

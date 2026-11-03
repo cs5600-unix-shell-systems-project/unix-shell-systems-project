@@ -1,65 +1,26 @@
 # Sprint 2 Task List
 
-Deadline deliverables and who owns what. Update as we go.
+## Team status
 
-## WARNING
+- Active: Zihan Guo, Changming Qiu
+- Parker McKillop: exempt from Sprint 2 by instructor accommodation. His tasks move to Sprint 3.
+- Rowan Lowden: no longer on the team.
 
-One fake or wrong citation = the whole team gets 0 for this sprint.
-Every person must verify their own citations: link opens, author and title correct.
+## Deliverables
 
-## Team deliverables (6)
+| Deliverable | Location | Owner | Status |
+|---|---|---|---|
+| Bibliography, 12+ sources | docs/bibliography.md | Zihan, Changming | 10 of 12. Zihan adding 2 |
+| Research Extension Update | top of bibliography.md | Changming | Done |
+| UML update or design note | docs/architecture/sprint2-design-note.md | Changming | Done |
+| Skeleton code | src/ | Zihan, Changming | Done |
+| README: language, build and run | README.md | Changming | Done |
+| AI reflection, one per active member | docs/ai-reflections.md | Zihan, Changming | Done |
+| Contribution tracker | Google Sheet | Zihan, Changming | Update before submission |
+| Merge dev into main | GitHub | Changming, approved by Zihan | Not started |
+| Release v0.2-sprint2 and Canvas submission | GitHub + Canvas | Changming | Not started |
 
-| Deliverable | Location | Status |
-|---|---|---|
-| Bibliography, 12+ sources | docs/bibliography.md | In progress: 7 of 12 |
-| Research Extension Update | top of bibliography.md | Done |
-| UML update or justification | docs/ | Not started |
-| Skeleton code | src/ + README.md | Code done. README needs language and build steps |
-| AI reflection, one per person | docs/ai-reflections.md | 2 of 3 done. Rowan pending. Parker exempt |
-| Admin: dev to main, tag, Canvas | GitHub + Canvas | Not started |
+## Bibliography split
 
-## Every person must do
-
-- Write your own AI reflection, 100 to 200 words.
-- Update the contribution tracker for this sprint.
-- Claim and verify your bibliography entries.
-
-## Bibliography category minimums
-
-- Academic papers: at least 3 (1 classic + 1 recent, last 5 to 10 years)
-- Books: at least 2 (not OSTEP, cite specific chapters)
-- Engineering blogs: at least 2
-- Community discourse: at least 1
-- Source code: at least 2 (link to a specific function or struct)
-
-## Per-person roles
-
-**Changming** (Benchmarking & Experimental Design)
-- Scheduler skeleton: done
-- Research Extension Update section: draft it (scheduling topic)
-- Bibliography: 1 paper (done), 1 source code (done), 1 book
-
-**Zihan** (Shell Developer & Scheduling)
-- Skeleton core: REPL loop + command parse + fork/exec
-- run_job interface: align with glossary.md
-- Bibliography: 1 paper, 1 source code, 1 blog or community
-
-**Parker** (Implementation & QA)
-- Shell feature support + unit tests
-- Timing and data collection, match the CSV format in glossary.md
-- Host/container normalization for clean benchmarks
-- Bibliography: 1 paper (recent), 1 blog, 1 community
-
-**Rowan** (Research Analyst & Technical Writer)
-- UML update or written justification
-- README: language choice (C), build/run steps, tracker link
-- Review all deliverables
-- Admin: tag v0.2-sprint2, submit to Canvas, upload zip
-- Bibliography: 1 book, 1 blog, 1 free choice
-
-## Key risks
-
-1. Skeleton 10 pts depends on Zihan's shell REPL + fork/exec.
-2. Scheduler needs Zihan's run_job. Define the interface now.
-3. Admin is the last gate. Wrong tag or missed Canvas = wasted work.
-4. Verify every citation. This is the only trigger for a team 0.
+| Person | Entries |
+|--
