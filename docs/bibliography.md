@@ -102,6 +102,24 @@ Scheduling-focused sources: proportional-share scheduling, user-space scheduling
 
 **Relevance:** Our project implements FIFO and priority-based batch scheduling to compare job execution order and scheduling behavior. The discussion highlights a potential fairness limitation of strict priority scheduling, where lower-priority jobs may experience long waiting times. Priority aging is a possible future improvement to our scheduler, although it is not implemented in Sprint 2.
 
+### [11] A. Verma, L. Pedrosa, M. R. Korupolu, D. Oppenheimer, E. Tune, and J. Wilkes, "Large-scale cluster management at Google with Borg," Proceedings of the Tenth European Conference on Computer Systems (EuroSys '15), 2015. [Link](https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/)
+
+**Category:** Academic Paper
+
+**Summary:** This paper describes Google's Borg cluster management system, which schedules jobs across large numbers of machines. Borg uses task priorities, admission control, and resource allocation policies to manage different workloads, including long-running services and batch jobs. The paper explains how scheduling decisions balance resource utilization and workload requirements.
+
+**Relevance:** Our project compares FIFO and priority-based batch scheduling to study how execution order affects waiting time and turnaround time. Borg provides a real-world example of how task priorities influence scheduling decisions. Although our scheduler runs jobs sequentially on a single system rather than distributing tasks across a cluster, the paper helps explain why priority-based policies are useful and what trade-offs they introduce.
+
+### [12] Linux Kernel Project, "Real-Time Scheduling Class (kernel/sched/rt.c)," Linux Kernel Source Code, version 6.12, 2024. [Link](https://github.com/torvalds/linux/blob/v6.12/kernel/sched/rt.c)
+
+**Category:** Source Code
+
+**Specific code:** `enqueue_task_rt()` (line 1383), `pick_next_rt_entity()` (line 1606), and `pick_task_rt()` (line 1637) in `kernel/sched/rt.c`, Linux v6.12.
+
+**Summary:** This source file implements the Linux real-time scheduling class used by SCHED_FIFO and SCHED_RR. The `enqueue_task_rt()` function adds runnable tasks to the real-time scheduling queues. The `pick_next_rt_entity()` function uses a priority bitmap to identify the highest-priority nonempty queue and selects the first entity from that queue. The `pick_task_rt()` function checks whether real-time tasks are runnable and retrieves the next task selected by the scheduler.
+
+**Relevance:** Our project implements FIFO and priority-based batch scheduling in user space. The Linux real-time scheduler provides a more advanced example of priority-based task selection and queue management. Examining these functions helps us understand how tasks can be organized by priority while preserving queue order within a priority level. Unlike the kernel scheduler, our project controls only the order in which submitted jobs are launched, without implementing CPU preemption or kernel-level scheduling policies.
+
 ## Parker McKillop
 
 Exempt from Sprint 2 by instructor accommodation.
