@@ -123,7 +123,7 @@ All team members have access to this virtual machine via a combination of tailsc
   | Hypervisor | Proxmox VE 8.3.0 |
   | CPU | Intel Xeon E3-1230 v5 @ 3.40 GHz: 1 socket, 4 cores, 8 threads (Hyper-Threading)|
   | Memory | 32 GB |
-  
+
   |Container||
   |---|---|
   | Type | LXC, privileged |

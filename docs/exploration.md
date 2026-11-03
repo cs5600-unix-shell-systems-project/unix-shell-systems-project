@@ -274,4 +274,3 @@ scheduling extension.
 [4] Arnaud Taddei. 1994. Shell Choice: A Shell Comparison. CN/DCI/162. Retrieved from https://www.hep.phy.cam.ac.uk/lhcb/LHCbSoftTraining/documents/ShellChoice.pdf
 [5] William Joy. 1979. An Introduction to the C Shell. Computer Science Division, Department of Electrical Engineering and Computer Science, University of California, Berkeley. Retrieved from https://docs-archive.freebsd.org/44doc/usd/04.csh/paper.pdf
 [6] Debian. 2025. dash(1). Debian Manpages. Retrieved from https://manpages.debian.org/testing/dash/dash.1.en.html
-
