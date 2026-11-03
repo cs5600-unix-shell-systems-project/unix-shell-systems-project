@@ -1,0 +1,7 @@
+.DS_Store
+benchmarks/*.csv
+shell
+benchmarks/*.txt
+scheduler-demo
+shell.dSYM/
+.vscode/
