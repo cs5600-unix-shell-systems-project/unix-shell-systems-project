@@ -5,3 +5,4 @@ benchmarks/*.txt
 scheduler-demo
 shell.dSYM/
 .vscode/
+__pycache__/
