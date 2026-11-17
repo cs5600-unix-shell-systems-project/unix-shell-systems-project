@@ -1,8 +1,9 @@
 # analyze_trial.py
 # Reads the raw data of one trial and computes the metrics.
+# Other scripts can import compute_metrics() from this file.
 # Run this script from the repository root.
 # Usage:   python3 benchmarks/analyze_trial.py <trial_name>
-# Example: python3 benchmarks/analyze_trial.py test1
+# Example: python3 benchmarks/analyze_trial.py baseline_jobs10_trial1
 #
 # Definitions:
 #   arrival time    = batch start time (all jobs arrive together)
@@ -24,19 +25,14 @@ def average(numbers):
     return total / len(numbers)
 
 
-# Main function: read the raw data and print the metrics.
-def main():
-    # Step 1: check that we got the trial name.
-    if len(sys.argv) != 2:
-        print("Usage: python3 benchmarks/analyze_trial.py <trial_name>")
-        return
-
-    # Step 2: build the file names.
-    trial_name = sys.argv[1]
+# Read the raw data of one trial and compute its metrics.
+# Return the metrics in a dictionary.
+def compute_metrics(trial_name):
+    # Step 1: build the file names.
     jobs_log = "benchmarks/trials/" + trial_name + "_jobs.csv"
     batch_log = "benchmarks/trials/" + trial_name + "_batch.csv"
 
-    # Step 3: read the batch start and end time.
+    # Step 2: read the batch start and end time.
     batch_file = open(batch_log, "r")
     reader = csv.DictReader(batch_file)
     for row in reader:
@@ -44,7 +40,7 @@ def main():
         batch_end = float(row["batch_end"])
     batch_file.close()
 
-    # Step 4: prepare empty lists for the results.
+    # Step 3: prepare empty lists for the results.
     waiting_times = []
     turnaround_times = []
     completion_order = []
@@ -53,7 +49,7 @@ def main():
     waiting_by_priority = {1: [], 2: [], 3: []}
     turnaround_by_priority = {1: [], 2: [], 3: []}
 
-    # Step 5: read the jobs one by one.
+    # Step 4: read the jobs one by one.
     # Each job writes its line when it finishes.
     # So the line order in the file is the completion order.
     jobs_file = open(jobs_log, "r")
@@ -76,23 +72,50 @@ def main():
         turnaround_by_priority[priority].append(turnaround)
     jobs_file.close()
 
-    # Step 6: print the summary.
+    # Step 5: put all metrics into one dictionary.
+    metrics = {}
+    metrics["jobs"] = len(waiting_times)
+    metrics["total_time"] = batch_end - batch_start
+    metrics["avg_waiting"] = average(waiting_times)
+    metrics["avg_turnaround"] = average(turnaround_times)
+
+    # Add the metrics for each priority level.
+    for priority in [3, 2, 1]:
+        p = str(priority)
+        metrics["count_p" + p] = len(waiting_by_priority[priority])
+        metrics["avg_waiting_p" + p] = average(waiting_by_priority[priority])
+        metrics["avg_turnaround_p" + p] = average(turnaround_by_priority[priority])
+
+    metrics["completion_order"] = completion_order
+    return metrics
+
+
+# Main function: compute the metrics of one trial and print them.
+def main():
+    # Step 1: check that we got the trial name.
+    if len(sys.argv) != 2:
+        print("Usage: python3 benchmarks/analyze_trial.py <trial_name>")
+        return
+
+    # Step 2: compute the metrics.
+    trial_name = sys.argv[1]
+    metrics = compute_metrics(trial_name)
+
+    # Step 3: print the summary.
     print("Trial: " + trial_name)
-    print("Jobs: " + str(len(waiting_times)))
-    print("Total batch time (s): " + str(round(batch_end - batch_start, 4)))
-    print("Average waiting time (s): " + str(round(average(waiting_times), 4)))
-    print("Average turnaround time (s): " + str(round(average(turnaround_times), 4)))
+    print("Jobs: " + str(metrics["jobs"]))
+    print("Total batch time (s): " + str(round(metrics["total_time"], 4)))
+    print("Average waiting time (s): " + str(round(metrics["avg_waiting"], 4)))
+    print("Average turnaround time (s): " + str(round(metrics["avg_turnaround"], 4)))
 
     # Print the metrics for each priority level.
     for priority in [3, 2, 1]:
-        count = len(waiting_by_priority[priority])
-        avg_wait = average(waiting_by_priority[priority])
-        avg_turn = average(turnaround_by_priority[priority])
-        print("Priority " + str(priority) + ": jobs = " + str(count)
-              + ", avg waiting (s) = " + str(round(avg_wait, 4))
-              + ", avg turnaround (s) = " + str(round(avg_turn, 4)))
+        p = str(priority)
+        print("Priority " + p + ": jobs = " + str(metrics["count_p" + p])
+              + ", avg waiting (s) = " + str(round(metrics["avg_waiting_p" + p], 4))
+              + ", avg turnaround (s) = " + str(round(metrics["avg_turnaround_p" + p], 4)))
 
-    print("Completion order: " + str(completion_order))
+    print("Completion order: " + str(metrics["completion_order"]))
 
 
 # Standard Python pattern: run main only when this script is run directly.
