@@ -100,7 +100,19 @@ So it does not change the comparison between groups.
 
 ## Environment
 
-To be filled in after the baseline run on the LXC container.
+All official trials run in a dedicated LXC container.
+
+| Item | Value |
+|---|---|
+| Host | Proxmox VE |
+| Container OS | Ubuntu 24.10 |
+| Kernel | 6.8.12-4-pve, shared with the host |
+| CPU | Intel Xeon E3-1230 v5 @ 3.40GHz, 4 cores, 8 threads |
+| Memory | 15 GiB |
+| Compiler | gcc 14.2.0, GNU Make 4.3 |
+| Python | 3.12.7 |
+
+During each official run, the host runs only this container.
 
 ## Sprint 4
 
