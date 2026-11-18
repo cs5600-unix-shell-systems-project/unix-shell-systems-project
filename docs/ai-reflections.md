@@ -25,3 +25,9 @@ I used Claude as my main AI tool in Sprint 3.
 Where it helped: It turned the Sprint 3 rubric into a gap analysis and a task split for our team. It helped me design the benchmark rig. The key idea was to measure each job from outside the shell, with a wrapper script that logs its own timestamps. It drafted the benchmark scripts, the README, and my paper sections. I ran every script, checked each output, and verified the numbers by hand. It also caught a real problem: our LaTeX table rounded small standard deviations to zero.
 
 Where it fell short: It gave me a Mac file path when I was working on the VM. It assumed Parker would share the LXC device, but he had sent a user invite, so the setup steps changed. Twice it predicted the wrong output for a check command. It also suggested extra work, such as a Piazza post and a second experiment, that our sprint did not need. I learned to check each suggestion against the rubric and the real output before acting on it.
+
+## Parker McKillop
+
+As I rejoined the project group for this sprint, I used Claude Opus 5.5 to catch myself up on the project, I had it break out each files responsibilities, and reviewed the code, matching it up with those responsibilities so I understood each part of the project.
+
+Additionally, I used claude to help identify the relevant system calls and structures that I'd have to work with to set up cd. It did fall short in that it suggested I include the cd command as files external to shell.c. I didn't disagree with this in principle, but because our built ins live in shell.c, and it can be statically scoped, I didn't think it made sense to separate it into its own module.

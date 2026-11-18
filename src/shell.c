@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "executor.h"
 #include "fifo.h"
@@ -151,6 +152,31 @@ static void run_priority_jobs(void)
     pending_count = 0;
 }
 
+static void change_directory(int argc, char *argv[]){
+    // arg safety check
+    if (argc > 2) {
+        fprintf(stderr, "cd: too many arguments\n");
+        return;
+    }
+
+    const char *path = argv[1];
+
+    if(!path) {
+        // if no path is included, change to root
+        path = getenv("HOME");
+        // if HOME path isn't set in environment
+        if (!path){
+            fprintf(stderr, "HOME not set in global environment variables\n");
+            return;
+        }
+    }
+
+    // fire off the directory change system call, pass the error through if it fails
+    if (chdir(path)!=0){
+        perror("cd");
+    }
+}
+
 int main(void)
 {
     char input[INPUT_SIZE];
@@ -234,6 +260,11 @@ int main(void)
             continue;
         }
 
+        //cd can take advantage of the tokenizer
+        if (strcmp(job.argv[0], "cd")==0){
+            change_directory(argc, job.argv);
+            continue;
+        }
         // Execute the command.
         int status = run_job(&job);
 
