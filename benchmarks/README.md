@@ -107,8 +107,9 @@ All official trials run in a dedicated LXC container.
 | Host | Proxmox VE |
 | Container OS | Ubuntu 24.10 |
 | Kernel | 6.8.12-4-pve, shared with the host |
-| CPU | Intel Xeon E3-1230 v5 @ 3.40GHz, 4 cores, 8 threads |
-| Memory | 15 GiB |
+| Host CPU | Intel Xeon E3-1230 v5 @ 3.40GHz, 4 cores, 8 threads |
+| CPUs available to the container | 4 logical CPUs, no CPU quota |
+| Memory visible to the container | 15 GiB |
 | Compiler | gcc 14.2.0, GNU Make 4.3 |
 | Python | 3.12.7 |
 
