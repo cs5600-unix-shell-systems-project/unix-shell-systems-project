@@ -44,6 +44,7 @@ def compute_metrics(trial_name):
     waiting_times = []
     turnaround_times = []
     completion_order = []
+    total_duration = 0    # Sum of all job durations, in seconds.
 
     # One list per priority level: 1 = low, 2 = medium, 3 = high
     waiting_by_priority = {1: [], 2: [], 3: []}
@@ -59,6 +60,8 @@ def compute_metrics(trial_name):
         priority = int(row["priority"])
         start = float(row["start"])
         end = float(row["end"])
+        duration = float(row["duration"])
+        total_duration = total_duration + duration
 
         # Compute the two metrics for this job.
         waiting = start - batch_start
@@ -78,6 +81,11 @@ def compute_metrics(trial_name):
     metrics["total_time"] = batch_end - batch_start
     metrics["avg_waiting"] = average(waiting_times)
     metrics["avg_turnaround"] = average(turnaround_times)
+
+    # Overhead is the time that is not spent inside the jobs.
+    # Divide it by the number of jobs to get the average overhead per job.
+    total_time = batch_end - batch_start
+    metrics["overhead_per_job"] = (total_time - total_duration) / len(waiting_times)
 
     # Add the metrics for each priority level.
     for priority in [3, 2, 1]:
@@ -107,6 +115,7 @@ def main():
     print("Total batch time (s): " + str(round(metrics["total_time"], 4)))
     print("Average waiting time (s): " + str(round(metrics["avg_waiting"], 4)))
     print("Average turnaround time (s): " + str(round(metrics["avg_turnaround"], 4)))
+    print("Overhead per job (ms): " + str(round(metrics["overhead_per_job"] * 1000, 2)))
 
     # Print the metrics for each priority level.
     for priority in [3, 2, 1]:
