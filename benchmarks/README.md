@@ -15,6 +15,7 @@ It feeds a batch file to the shell and measures each job from outside.
 | `run_all.sh` | Runs all workload sizes, 5 trials each. |
 | `analyze_trial.py` | Computes the metrics of one trial. |
 | `summarize.py` | Combines all trials into a summary table with mean, std, min, and max. |
+| `make_table.py` | Turns the summary into a LaTeX table for the paper. |
 | `workloads/` | Fixed workload files with 10, 50, and 100 jobs. |
 | `trials/` | Raw data. Two CSV files per trial. |
 | `results/` | Summary tables. |
@@ -43,6 +44,14 @@ python3 benchmarks/summarize.py baseline
 
 The summary is written to `benchmarks/results/baseline_summary.csv`.
 
+4. Make the LaTeX table for the paper:
+
+```bash
+python3 benchmarks/make_table.py baseline
+```
+
+The table is written to `benchmarks/results/baseline_table.tex`.
+
 To look at one trial only:
 
 ```bash
@@ -61,6 +70,7 @@ The arrival time is the batch start time.
 | Turnaround time | Job end time minus arrival time |
 | Total batch time | Batch end time minus batch start time |
 | Completion order | The order in which jobs finish |
+| Overhead per job | Total batch time minus the sum of job durations, divided by the number of jobs |
 
 We report each metric for all jobs and for each priority level.
 Priority 3 is high, 2 is medium, and 1 is low.
