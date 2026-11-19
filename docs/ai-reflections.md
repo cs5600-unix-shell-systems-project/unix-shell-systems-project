@@ -31,3 +31,13 @@ Where it fell short: It gave me a Mac file path when I was working on the VM. It
 As I rejoined the project group for this sprint, I used Claude Opus 5.5 to catch myself up on the project, I had it break out each files responsibilities, and reviewed the code, matching it up with those responsibilities so I understood each part of the project.
 
 Additionally, I used claude to help identify the relevant system calls and structures that I'd have to work with to set up cd. It did fall short in that it suggested I include the cd command as files external to shell.c. I didn't disagree with this in principle, but because our built ins live in shell.c, and it can be statically scoped, I didn't think it made sense to separate it into its own module.
+
+## Zihan Guo
+
+During Sprint 3, I used ChatGPT mainly to better understand UNIX shell concepts and troubleshoot problems during development. It helped me understand how system calls such as fork(), pipe(), dup2(), and waitpid() work together when executing pipelines and managing child processes.
+
+One challenge was extending our initial two-command pipeline implementation to support multiple commands. ChatGPT helped me analyze the problem, understand the necessary changes to process communication, and identify useful test cases. I tested three-stage and four-stage pipelines, output redirection, and invalid command syntax. I also ran regression tests to make sure the existing executor and scheduling features still worked.
+
+I also used AI to help organize technical explanations and improve the structure of my sections in our IEEE paper. I checked the references and verified the final formatting in Overleaf.
+
+The main lesson I learned was that AI can be useful for understanding unfamiliar concepts and troubleshooting, but its suggestions still need to be checked against project requirements and actual test results.

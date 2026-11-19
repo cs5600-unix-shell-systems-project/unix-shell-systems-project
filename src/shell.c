@@ -220,8 +220,6 @@ int main(void)
             break;
         }
 
-        Job job = {0};
-        int argc = 0;
 
         // Submit a batch job without executing it immediately.
         if (strncmp(input, "submit ", 7) == 0) {
@@ -246,27 +244,128 @@ int main(void)
             continue;
         }
 
-        // Split input into command and arguments.
-        char *token = strtok(input, " \t");
+        // Parse output redirection before tokenizing the command.
+        char *output_file = NULL;
+        char *redirect = strchr(input, '>');
 
-        while (token != NULL && argc < MAX_ARGS - 1) {
-            job.argv[argc++] = token;
-            token = strtok(NULL, " \t");
+        if (redirect != NULL) {
+            *redirect = '\0';
+            char *filename = redirect + 1;
+
+            // Skip whitespace after '>'.
+            while (*filename == ' ' || *filename == '\t') {
+                filename++;
+            }
+
+            if (*filename == '\0') {
+                fprintf(stderr, "Redirection: missing output file\n");
+                continue;
+            }
+
+            if (strchr(filename, '>') != NULL) {
+                fprintf(stderr, "Redirection: multiple '>' operators\n");
+                continue;
+            }
+
+            // Trim trailing whitespace from the filename.
+            size_t file_len = strlen(filename);
+            while (file_len > 0 &&
+                   (filename[file_len - 1] == ' ' ||
+                    filename[file_len - 1] == '\t')) {
+                filename[--file_len] = '\0';
+            }
+
+            // This version supports one filename without spaces.
+            if (strchr(filename, ' ') || strchr(filename, '\t')) {
+                fprintf(stderr, "Redirection: invalid output filename\n");
+                continue;
+            }
+
+            output_file = filename;
         }
 
-        job.argv[argc] = NULL;
+        // Split the input into pipeline stages.
+        // Each stage contains one command and its arguments.
+        Job stages[MAX_ARGS] = {0};
+        int stage_count = 0;
+        int parse_error = 0;
+        char *segment = input;
 
-        if (argc == 0) {
+        while (segment != NULL) {
+            if (stage_count >= MAX_ARGS) {
+                fprintf(stderr, "Pipeline: too many stages\n");
+                parse_error = 1;
+                break;
+            }
+
+            char *next_pipe = strchr(segment, '|');
+
+            if (next_pipe != NULL) {
+                *next_pipe = '\0';
+            }
+
+            Job *current = &stages[stage_count];
+            int arg_count = 0;
+            char *token = strtok(segment, " \t");
+
+            while (token != NULL && arg_count < MAX_ARGS - 1) {
+                current->argv[arg_count++] = token;
+                token = strtok(NULL, " \t");
+            }
+
+            if (token != NULL) {
+                fprintf(stderr, "Pipeline: too many arguments\n");
+                parse_error = 1;
+                break;
+            }
+
+            current->argv[arg_count] = NULL;
+
+            if (arg_count == 0) {
+                fprintf(stderr, "Pipeline: missing command\n");
+                parse_error = 1;
+                break;
+            }
+
+            stage_count++;
+
+            if (next_pipe == NULL) {
+                break;
+            }
+
+            segment = next_pipe + 1;
+        }
+
+        if (parse_error || stage_count == 0) {
             continue;
         }
 
-        //cd can take advantage of the tokenizer
-        if (strcmp(job.argv[0], "cd")==0){
-            change_directory(argc, job.argv);
+        // cd must execute in the parent shell process.
+        if (strcmp(stages[0].argv[0], "cd") == 0) {
+            if (stage_count > 1 || output_file != NULL) {
+                fprintf(stderr, "cd: pipes and redirection not supported\n");
+                continue;
+            }
+
+            int cd_argc = 0;
+            while (stages[0].argv[cd_argc] != NULL) {
+                cd_argc++;
+            }
+
+            change_directory(cd_argc, stages[0].argv);
             continue;
         }
-        // Execute the command.
-        int status = run_job(&job);
+
+        // Execute a pipeline or a single command.
+        int status;
+
+        if (stage_count > 1) {
+            status = run_pipeline(stages, stage_count, output_file);
+        } else if (output_file != NULL) {
+            status = run_job_redirect(&stages[0], output_file);
+        } else {
+            status = run_job(&stages[0]);
+        }
 
         if (status != 0) {
             fprintf(stderr, "Command exited with status %d\n", status);
