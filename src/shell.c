@@ -246,6 +246,46 @@ int main(void)
             continue;
         }
 
+        // Parse output redirection before tokenizing the command.
+        char *output_file = NULL;
+        char *redirect = strchr(input, '>');
+
+        if (redirect != NULL) {
+            *redirect = '\0';
+            char *filename = redirect + 1;
+
+            // Skip whitespace after '>'.
+            while (*filename == ' ' || *filename == '\t') {
+                filename++;
+            }
+
+            if (*filename == '\0') {
+                fprintf(stderr, "Redirection: missing output file\n");
+                continue;
+            }
+
+            if (strchr(filename, '>') != NULL) {
+                fprintf(stderr, "Redirection: multiple '>' operators\n");
+                continue;
+            }
+
+            // Trim trailing whitespace from the filename.
+            size_t file_len = strlen(filename);
+            while (file_len > 0 &&
+                   (filename[file_len - 1] == ' ' ||
+                    filename[file_len - 1] == '\t')) {
+                filename[--file_len] = '\0';
+            }
+
+            // This version supports one filename without spaces.
+            if (strchr(filename, ' ') || strchr(filename, '\t')) {
+                fprintf(stderr, "Redirection: invalid output filename\n");
+                continue;
+            }
+
+            output_file = filename;
+        }
+
         // Split input into command and arguments.
         char *token = strtok(input, " \t");
 
@@ -265,8 +305,10 @@ int main(void)
             change_directory(argc, job.argv);
             continue;
         }
-        // Execute the command.
-        int status = run_job(&job);
+        // Execute the command, optionally redirecting stdout.
+        int status = output_file != NULL
+            ? run_job_redirect(&job, output_file)
+            : run_job(&job);
 
         if (status != 0) {
             fprintf(stderr, "Command exited with status %d\n", status);

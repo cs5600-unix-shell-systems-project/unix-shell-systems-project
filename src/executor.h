@@ -7,4 +7,8 @@
 // Returns the command's exit status, or -1 on system error.
 int run_job(Job *job);
 
+// Execute a job and redirect its standard output to a file.
+// Returns the command's exit status, or -1 on system error.
+int run_job_redirect(Job *job, const char *output_file);
+
 #endif
