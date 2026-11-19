@@ -120,3 +120,146 @@ int run_job_redirect(Job *job, const char *output_file)
 
     return -1;
 }
+
+// Execute two commands connected by a pipe.
+int run_pipeline(Job *left, Job *right, const char *output_file)
+{
+    if (left == NULL || right == NULL ||
+        left->argv[0] == NULL || right->argv[0] == NULL) {
+        fprintf(stderr, "run_pipeline: invalid arguments\n");
+        return -1;
+    }
+
+    int pipefd[2];
+
+    if (pipe(pipefd) < 0) {
+        perror("pipe");
+        return -1;
+    }
+
+    fflush(stdout);
+
+    // First child writes to the pipe.
+    pid_t left_pid = fork();
+
+    if (left_pid < 0) {
+        perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return -1;
+    }
+
+    if (left_pid == 0) {
+        close(pipefd[0]);
+
+        if (dup2(pipefd[1], STDOUT_FILENO) < 0) {
+            perror("dup2");
+            _exit(1);
+        }
+
+        close(pipefd[1]);
+        execvp(left->argv[0], left->argv);
+
+        int saved_errno = errno;
+        perror("execvp");
+        _exit(saved_errno == ENOENT ? 127 : 126);
+    }
+
+    // Second child reads from the pipe.
+    pid_t right_pid = fork();
+
+    if (right_pid < 0) {
+        perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+
+        int status;
+        while (waitpid(left_pid, &status, 0) < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            perror("waitpid");
+            break;
+        }
+        return -1;
+    }
+
+    if (right_pid == 0) {
+        close(pipefd[1]);
+
+        if (dup2(pipefd[0], STDIN_FILENO) < 0) {
+            perror("dup2");
+            _exit(1);
+        }
+
+        close(pipefd[0]);
+
+        // Redirect the last command's stdout if requested.
+        if (output_file != NULL) {
+            int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+            if (fd < 0) {
+                perror("open");
+                _exit(1);
+            }
+
+            if (dup2(fd, STDOUT_FILENO) < 0) {
+                perror("dup2");
+                close(fd);
+                _exit(1);
+            }
+
+            close(fd);
+        }
+
+        execvp(right->argv[0], right->argv);
+
+        int saved_errno = errno;
+        perror("execvp");
+        _exit(saved_errno == ENOENT ? 127 : 126);
+    }
+
+    // Parent closes both pipe ends.
+    close(pipefd[0]);
+    close(pipefd[1]);
+
+    int left_status = 0;
+    int right_status = 0;
+    int wait_error = 0;
+
+    // Always attempt to reap both children.
+    while (waitpid(left_pid, &left_status, 0) < 0) {
+        if (errno == EINTR) {
+            continue;
+        }
+
+        perror("waitpid");
+        wait_error = 1;
+        break;
+    }
+
+    while (waitpid(right_pid, &right_status, 0) < 0) {
+        if (errno == EINTR) {
+            continue;
+        }
+
+        perror("waitpid");
+        wait_error = 1;
+        break;
+    }
+
+    if (wait_error) {
+        return -1;
+    }
+
+    // Like a typical shell, return the last command's status.
+    if (WIFEXITED(right_status)) {
+        return WEXITSTATUS(right_status);
+    }
+
+    if (WIFSIGNALED(right_status)) {
+        return 128 + WTERMSIG(right_status);
+    }
+
+    return -1;
+}

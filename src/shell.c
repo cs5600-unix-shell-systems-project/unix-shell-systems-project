@@ -286,7 +286,22 @@ int main(void)
             output_file = filename;
         }
 
-        // Split input into command and arguments.
+        // Split the command into two parts if a pipe is present.
+        char *pipe_pos = strchr(input, '|');
+        char *right_command = NULL;
+
+        if (pipe_pos != NULL) {
+            *pipe_pos = '\0';
+            right_command = pipe_pos + 1;
+
+            // Only one pipe is supported in this version.
+            if (strchr(right_command, '|') != NULL) {
+                fprintf(stderr, "Pipeline: multiple pipes not supported\n");
+                continue;
+            }
+        }
+
+        // Parse the left command.
         char *token = strtok(input, " \t");
 
         while (token != NULL && argc < MAX_ARGS - 1) {
@@ -297,18 +312,52 @@ int main(void)
         job.argv[argc] = NULL;
 
         if (argc == 0) {
+            if (right_command != NULL) {
+                fprintf(stderr, "Pipeline: missing left command\n");
+            }
             continue;
         }
 
-        //cd can take advantage of the tokenizer
-        if (strcmp(job.argv[0], "cd")==0){
+        Job right_job = {0};
+
+        if (right_command != NULL) {
+            int right_argc = 0;
+            token = strtok(right_command, " \t");
+
+            while (token != NULL && right_argc < MAX_ARGS - 1) {
+                right_job.argv[right_argc++] = token;
+                token = strtok(NULL, " \t");
+            }
+
+            right_job.argv[right_argc] = NULL;
+
+            if (right_argc == 0) {
+                fprintf(stderr, "Pipeline: missing right command\n");
+                continue;
+            }
+        }
+
+        // cd must run in the shell process to change its directory.
+        if (strcmp(job.argv[0], "cd") == 0) {
+            if (right_command != NULL || output_file != NULL) {
+                fprintf(stderr, "cd: pipes and redirection not supported\n");
+                continue;
+            }
+
             change_directory(argc, job.argv);
             continue;
         }
-        // Execute the command, optionally redirecting stdout.
-        int status = output_file != NULL
-            ? run_job_redirect(&job, output_file)
-            : run_job(&job);
+
+        // Execute a pipeline or a regular command.
+        int status;
+
+        if (right_command != NULL) {
+            status = run_pipeline(&job, &right_job, output_file);
+        } else if (output_file != NULL) {
+            status = run_job_redirect(&job, output_file);
+        } else {
+            status = run_job(&job);
+        }
 
         if (status != 0) {
             fprintf(stderr, "Command exited with status %d\n", status);
