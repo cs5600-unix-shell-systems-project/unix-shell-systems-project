@@ -122,143 +122,131 @@ int run_job_redirect(Job *job, const char *output_file)
 }
 
 // Execute two commands connected by a pipe.
-int run_pipeline(Job *left, Job *right, const char *output_file)
+// Execute multiple commands connected by pipes.
+int run_pipeline(Job *jobs, int job_count, const char *output_file)
 {
-    if (left == NULL || right == NULL ||
-        left->argv[0] == NULL || right->argv[0] == NULL) {
+    if (jobs == NULL || job_count < 2 || job_count > MAX_ARGS) {
         fprintf(stderr, "run_pipeline: invalid arguments\n");
         return -1;
     }
 
-    int pipefd[2];
-
-    if (pipe(pipefd) < 0) {
-        perror("pipe");
-        return -1;
+    for (int i = 0; i < job_count; i++) {
+        if (jobs[i].argv[0] == NULL) {
+            fprintf(stderr, "run_pipeline: empty command\n");
+            return -1;
+        }
     }
+
+    pid_t pids[MAX_ARGS];
+    int started = 0;
+    int previous_read = -1;
+    int failed = 0;
+    int last_status = 0;
 
     fflush(stdout);
 
-    // First child writes to the pipe.
-    pid_t left_pid = fork();
+    for (int i = 0; i < job_count; i++) {
+        int pipefd[2] = {-1, -1};
 
-    if (left_pid < 0) {
-        perror("fork");
-        close(pipefd[0]);
-        close(pipefd[1]);
-        return -1;
-    }
-
-    if (left_pid == 0) {
-        close(pipefd[0]);
-
-        if (dup2(pipefd[1], STDOUT_FILENO) < 0) {
-            perror("dup2");
-            _exit(1);
-        }
-
-        close(pipefd[1]);
-        execvp(left->argv[0], left->argv);
-
-        int saved_errno = errno;
-        perror("execvp");
-        _exit(saved_errno == ENOENT ? 127 : 126);
-    }
-
-    // Second child reads from the pipe.
-    pid_t right_pid = fork();
-
-    if (right_pid < 0) {
-        perror("fork");
-        close(pipefd[0]);
-        close(pipefd[1]);
-
-        int status;
-        while (waitpid(left_pid, &status, 0) < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            perror("waitpid");
+        // Every stage except the last needs an output pipe.
+        if (i < job_count - 1 && pipe(pipefd) < 0) {
+            perror("pipe");
+            failed = 1;
             break;
         }
-        return -1;
-    }
 
-    if (right_pid == 0) {
-        close(pipefd[1]);
+        pid_t pid = fork();
 
-        if (dup2(pipefd[0], STDIN_FILENO) < 0) {
-            perror("dup2");
-            _exit(1);
+        if (pid < 0) {
+            perror("fork");
+            if (pipefd[0] != -1) close(pipefd[0]);
+            if (pipefd[1] != -1) close(pipefd[1]);
+            failed = 1;
+            break;
         }
 
-        close(pipefd[0]);
-
-        // Redirect the last command's stdout if requested.
-        if (output_file != NULL) {
-            int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-
-            if (fd < 0) {
-                perror("open");
-                _exit(1);
+        if (pid == 0) {
+            // Read input from the previous stage.
+            if (previous_read != -1) {
+                if (dup2(previous_read, STDIN_FILENO) < 0) {
+                    perror("dup2");
+                    _exit(1);
+                }
             }
 
-            if (dup2(fd, STDOUT_FILENO) < 0) {
-                perror("dup2");
+            // Send output to the next stage.
+            if (pipefd[1] != -1) {
+                if (dup2(pipefd[1], STDOUT_FILENO) < 0) {
+                    perror("dup2");
+                    _exit(1);
+                }
+            }
+
+            if (previous_read != -1) close(previous_read);
+            if (pipefd[0] != -1) close(pipefd[0]);
+            if (pipefd[1] != -1) close(pipefd[1]);
+
+            // Only the final stage can redirect stdout to a file.
+            if (i == job_count - 1 && output_file != NULL) {
+                int fd = open(output_file,
+                              O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+                if (fd < 0) {
+                    perror("open");
+                    _exit(1);
+                }
+
+                if (dup2(fd, STDOUT_FILENO) < 0) {
+                    perror("dup2");
+                    close(fd);
+                    _exit(1);
+                }
+
                 close(fd);
-                _exit(1);
             }
 
-            close(fd);
+            execvp(jobs[i].argv[0], jobs[i].argv);
+
+            int saved_errno = errno;
+            perror("execvp");
+            _exit(saved_errno == ENOENT ? 127 : 126);
         }
 
-        execvp(right->argv[0], right->argv);
+        pids[started++] = pid;
 
-        int saved_errno = errno;
-        perror("execvp");
-        _exit(saved_errno == ENOENT ? 127 : 126);
+        // Parent keeps only the read end for the next stage.
+        if (previous_read != -1) close(previous_read);
+        if (pipefd[1] != -1) close(pipefd[1]);
+        previous_read = pipefd[0];
     }
 
-    // Parent closes both pipe ends.
-    close(pipefd[0]);
-    close(pipefd[1]);
+    if (previous_read != -1) close(previous_read);
 
-    int left_status = 0;
-    int right_status = 0;
-    int wait_error = 0;
+    // Wait for every child, including after a pipe or fork error.
+    for (int i = 0; i < started; i++) {
+        int status = 0;
+        pid_t result;
 
-    // Always attempt to reap both children.
-    while (waitpid(left_pid, &left_status, 0) < 0) {
-        if (errno == EINTR) {
-            continue;
+        do {
+            result = waitpid(pids[i], &status, 0);
+        } while (result < 0 && errno == EINTR);
+
+        if (result < 0) {
+            perror("waitpid");
+            failed = 1;
+        } else if (i == job_count - 1) {
+            last_status = status;
         }
-
-        perror("waitpid");
-        wait_error = 1;
-        break;
     }
 
-    while (waitpid(right_pid, &right_status, 0) < 0) {
-        if (errno == EINTR) {
-            continue;
-        }
+    if (failed) return -1;
 
-        perror("waitpid");
-        wait_error = 1;
-        break;
+    if (WIFEXITED(last_status)) {
+        return WEXITSTATUS(last_status);
     }
 
-    if (wait_error) {
-        return -1;
-    }
-
-    // Like a typical shell, return the last command's status.
-    if (WIFEXITED(right_status)) {
-        return WEXITSTATUS(right_status);
-    }
-
-    if (WIFSIGNALED(right_status)) {
-        return 128 + WTERMSIG(right_status);
+    if (WIFSIGNALED(last_status)) {
+        return 128 + WTERMSIG(last_status);
     }
 
     return -1;

@@ -11,8 +11,8 @@ int run_job(Job *job);
 // Returns the command's exit status, or -1 on system error.
 int run_job_redirect(Job *job, const char *output_file);
 
-// Execute two commands connected by a pipe.
-// Returns the second command's exit status, or -1 on system error.
-int run_pipeline(Job *left, Job *right, const char *output_file);
+// Execute multiple commands connected by pipes.
+// Returns the last command's exit status, or -1 on system error.
+int run_pipeline(Job *jobs, int job_count, const char *output_file);
 
 #endif

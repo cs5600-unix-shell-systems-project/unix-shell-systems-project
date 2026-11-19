@@ -220,8 +220,6 @@ int main(void)
             break;
         }
 
-        Job job = {0};
-        int argc = 0;
 
         // Submit a batch job without executing it immediately.
         if (strncmp(input, "submit ", 7) == 0) {
@@ -286,77 +284,87 @@ int main(void)
             output_file = filename;
         }
 
-        // Split the command into two parts if a pipe is present.
-        char *pipe_pos = strchr(input, '|');
-        char *right_command = NULL;
+        // Split the input into pipeline stages.
+        // Each stage contains one command and its arguments.
+        Job stages[MAX_ARGS] = {0};
+        int stage_count = 0;
+        int parse_error = 0;
+        char *segment = input;
 
-        if (pipe_pos != NULL) {
-            *pipe_pos = '\0';
-            right_command = pipe_pos + 1;
-
-            // Only one pipe is supported in this version.
-            if (strchr(right_command, '|') != NULL) {
-                fprintf(stderr, "Pipeline: multiple pipes not supported\n");
-                continue;
+        while (segment != NULL) {
+            if (stage_count >= MAX_ARGS) {
+                fprintf(stderr, "Pipeline: too many stages\n");
+                parse_error = 1;
+                break;
             }
-        }
 
-        // Parse the left command.
-        char *token = strtok(input, " \t");
+            char *next_pipe = strchr(segment, '|');
 
-        while (token != NULL && argc < MAX_ARGS - 1) {
-            job.argv[argc++] = token;
-            token = strtok(NULL, " \t");
-        }
-
-        job.argv[argc] = NULL;
-
-        if (argc == 0) {
-            if (right_command != NULL) {
-                fprintf(stderr, "Pipeline: missing left command\n");
+            if (next_pipe != NULL) {
+                *next_pipe = '\0';
             }
-            continue;
-        }
 
-        Job right_job = {0};
+            Job *current = &stages[stage_count];
+            int arg_count = 0;
+            char *token = strtok(segment, " \t");
 
-        if (right_command != NULL) {
-            int right_argc = 0;
-            token = strtok(right_command, " \t");
-
-            while (token != NULL && right_argc < MAX_ARGS - 1) {
-                right_job.argv[right_argc++] = token;
+            while (token != NULL && arg_count < MAX_ARGS - 1) {
+                current->argv[arg_count++] = token;
                 token = strtok(NULL, " \t");
             }
 
-            right_job.argv[right_argc] = NULL;
-
-            if (right_argc == 0) {
-                fprintf(stderr, "Pipeline: missing right command\n");
-                continue;
+            if (token != NULL) {
+                fprintf(stderr, "Pipeline: too many arguments\n");
+                parse_error = 1;
+                break;
             }
+
+            current->argv[arg_count] = NULL;
+
+            if (arg_count == 0) {
+                fprintf(stderr, "Pipeline: missing command\n");
+                parse_error = 1;
+                break;
+            }
+
+            stage_count++;
+
+            if (next_pipe == NULL) {
+                break;
+            }
+
+            segment = next_pipe + 1;
         }
 
-        // cd must run in the shell process to change its directory.
-        if (strcmp(job.argv[0], "cd") == 0) {
-            if (right_command != NULL || output_file != NULL) {
+        if (parse_error || stage_count == 0) {
+            continue;
+        }
+
+        // cd must execute in the parent shell process.
+        if (strcmp(stages[0].argv[0], "cd") == 0) {
+            if (stage_count > 1 || output_file != NULL) {
                 fprintf(stderr, "cd: pipes and redirection not supported\n");
                 continue;
             }
 
-            change_directory(argc, job.argv);
+            int cd_argc = 0;
+            while (stages[0].argv[cd_argc] != NULL) {
+                cd_argc++;
+            }
+
+            change_directory(cd_argc, stages[0].argv);
             continue;
         }
 
-        // Execute a pipeline or a regular command.
+        // Execute a pipeline or a single command.
         int status;
 
-        if (right_command != NULL) {
-            status = run_pipeline(&job, &right_job, output_file);
+        if (stage_count > 1) {
+            status = run_pipeline(stages, stage_count, output_file);
         } else if (output_file != NULL) {
-            status = run_job_redirect(&job, output_file);
+            status = run_job_redirect(&stages[0], output_file);
         } else {
-            status = run_job(&job);
+            status = run_job(&stages[0]);
         }
 
         if (status != 0) {
