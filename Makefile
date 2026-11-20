@@ -23,6 +23,8 @@ test:
 	/tmp/test_executor
 	$(CC) $(CFLAGS) -o /tmp/test_executor_error tests/test_executor_error.c src/executor.c
 	/tmp/test_executor_error
+	$(CC) $(CFLAGS) -o /tmp/test_pipe_error tests/test_pipe_error.c src/executor.c
+	/tmp/test_pipe_error
 
 clean:
 	rm -f $(TARGET) $(DEMO_TARGET)
