@@ -25,6 +25,8 @@ test:
 	/tmp/test_executor_error
 	$(CC) $(CFLAGS) -o /tmp/test_pipe_error tests/test_pipe_error.c src/executor.c
 	/tmp/test_pipe_error
+	$(CC) $(CFLAGS) -Wl,--wrap=fork -o /tmp/test_fork_error tests/test_fork_error.c src/executor.c
+	/tmp/test_fork_error
 
 clean:
 	rm -f $(TARGET) $(DEMO_TARGET)
