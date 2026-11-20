@@ -30,7 +30,7 @@ Where it fell short: It gave me a Mac file path when I was working on the VM. It
 
 As I rejoined the project group for this sprint, I used Claude Opus 5.5 to catch myself up on the project, I had it break out each files responsibilities, and reviewed the code, matching it up with those responsibilities so I understood each part of the project.
 
-Additionally, I used claude to help identify the relevant system calls and structures that I'd have to work with to set up cd. It did fall short in that it suggested I include the cd command as files external to shell.c. I didn't disagree with this in principle, but because our built ins live in shell.c, and it can be statically scoped, I didn't think it made sense to separate it into its own module.
+Additionally, I used claude to help identify the relevant system calls and structures that I'd have to work with to set up cd. It did fall short in that it suggested I include the cd command as files external to shell.c. I didn't disagree with this in principle, but because our built ins live in shell.c, and it can be statically scoped, I didn't think it made sense to separate it into its own module. I also used it to help me understand the process of mocking the failed fork used in `test_fork_error.c`
 
 ## Zihan Guo
 
