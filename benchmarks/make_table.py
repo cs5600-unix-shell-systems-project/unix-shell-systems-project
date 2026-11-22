@@ -52,6 +52,7 @@ def main():
     lines = []
     lines.append("\\begin{table*}[t]")
     lines.append("\\centering")
+    lines.append("\\footnotesize")    # Smaller font, so the wide table fits the page.
 
     # Write a caption that fits the experiment group.
     if prefix == "baseline":
