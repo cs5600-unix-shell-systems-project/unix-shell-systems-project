@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L 
 #include "executor.h"
 #include <fcntl.h>
 #include <errno.h>
@@ -5,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
 int run_job(Job *job)
 {
@@ -221,6 +223,14 @@ int run_pipeline(Job *jobs, int job_count, const char *output_file)
     }
 
     if (previous_read != -1) close(previous_read);
+
+    // orphaned processes need to be killed before they're waited on, 
+    // behavior before this change would keep an orphaned child running while waiting on it.
+    if (failed) {
+        for(int i = 0; i < started; i++){
+            kill(pids[i], SIGTERM);
+        }
+    }
 
     // Wait for every child, including after a pipe or fork error.
     for (int i = 0; i < started; i++) {
