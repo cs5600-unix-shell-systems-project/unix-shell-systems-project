@@ -125,6 +125,13 @@ All official trials run in a dedicated LXC container.
 
 During each official run, the host runs only this container.
 
+## Official Baseline
+
+The Sprint 3 baseline ran on commit `2d48639` on Nov 22, 2026.
+Raw data is in `trials/`.
+The summary, the LaTeX table, and the run record are in `results/`.
+See `results/baseline_run_info.txt` for the exact run conditions.
+
 ## Sprint 4
 
 The same rig will measure the priority scheduler.
