@@ -1,0 +1,15 @@
+Official baseline run for Sprint 3
+
+Code version:   commit 2d48639 on dev, after PR #16
+Environment:    LXC container on Proxmox VE, see benchmarks/README.md
+Host services:  stopped by Parker before the run
+Start time:     Sun Nov 22 19:32:36 UTC 2026
+End time:       Sun Nov 22 19:36:28 UTC 2026
+Load at start:  0.09, 0.11, 0.09
+Load at end:    0.33, 0.25, 0.15
+Run time:       real 3m51.249s, user 0m1.277s, sys 0m2.973s
+
+Commands:
+  benchmarks/run_all.sh
+  python3 benchmarks/summarize.py baseline
+  python3 benchmarks/make_table.py baseline
