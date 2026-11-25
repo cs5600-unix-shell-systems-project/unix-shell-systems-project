@@ -45,12 +45,7 @@ int vector_push(Vector *v, char *command) {
     } else {
         memcpy(copy, command, length + 1);
         v->commands[v->length] = copy;
-        printf("%s\n", copy);
         v->length++;
-
-         for (size_t i = 0; i < v->length; i++) {
-            printf("%zu: %s\n", i, v->commands[i]);
-        }
         return 1;
     }
 }
@@ -58,3 +53,10 @@ int vector_push(Vector *v, char *command) {
 /*int vector_free(Vector *v) {
 
 }*/
+
+//write line
+void print_history(Vector *v) {
+    for (size_t i = 0; i < v->length; i++) {
+        printf("%zu: %s\n", i, v->commands[i]);
+    }
+}

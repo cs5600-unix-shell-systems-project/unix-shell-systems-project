@@ -154,6 +154,7 @@ static void run_priority_jobs(void)
     pending_count = 0;
 }
 
+
 static void change_directory(int argc, char *argv[]){
     // arg safety check
     if (argc > 2) {
@@ -179,6 +180,8 @@ static void change_directory(int argc, char *argv[]){
     }
 }
 
+
+
 int main(void)
 {
     char input[INPUT_SIZE];
@@ -186,7 +189,7 @@ int main(void)
 
     Vector history;
     if (!init_vector(&history)){
-        fprintf(stderr, "Could not allocate command history; history will not be available this session");
+        fprintf(stderr, "Could not allocate command history; history will not be available this session\n");
         cmd_history = false;
     }
 
@@ -224,13 +227,18 @@ int main(void)
             continue;
         }
 
-        if(cmd_history){
+        // History handling
+        if(cmd_history && input[0]!='!'){
             vector_push(&history, input);
+        }
+
+        if(strcmp(input, "!!")==0){
+            print_history(&history);
+            continue;
         }
 
         // Exit the shell.
         if (strcmp(input, "exit") == 0) {
-            //call vector_free in here
             break;
         }
 
@@ -386,5 +394,6 @@ int main(void)
         }
     }
 
+    // if the cmd_history flag is set, call vector_free here
     return 0;
 }

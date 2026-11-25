@@ -19,5 +19,6 @@ typedef struct {
 int init_vector(Vector *v);
 int vector_push(Vector *v, char *command);
 //void vector_free(Vector *v);
+void print_history(Vector *v);
 
 #endif
