@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "executor.h"
 #include "fifo.h"
 #include "priority.h"
+#include "history.h"
 
 #define INPUT_SIZE 1024
 
@@ -180,6 +182,13 @@ static void change_directory(int argc, char *argv[]){
 int main(void)
 {
     char input[INPUT_SIZE];
+    bool cmd_history = true;
+
+    Vector history;
+    if (!init_vector(&history)){
+        fprintf(stderr, "Could not allocate command history; history will not be available this session");
+        cmd_history = false;
+    }
 
     while (1) {
         printf("myshell> ");
@@ -215,8 +224,13 @@ int main(void)
             continue;
         }
 
+        if(cmd_history){
+            vector_push(&history, input);
+        }
+
         // Exit the shell.
         if (strcmp(input, "exit") == 0) {
+            //call vector_free in here
             break;
         }
 
