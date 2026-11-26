@@ -50,11 +50,16 @@ int vector_push(Vector *v, char *command) {
     }
 }
 
-/*int vector_free(Vector *v) {
+void vector_free(Vector *v) {
+    for (size_t i = 0; i<v->length; i++){
+        free(v->commands[i]);
+    }
 
-}*/
+    free(v->commands);
 
-//write line
+    return;
+}
+
 void print_history(Vector *v) {
     for (size_t i = 0; i < v->length; i++) {
         printf("%zu: %s\n", i, v->commands[i]);

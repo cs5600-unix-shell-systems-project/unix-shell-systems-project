@@ -181,7 +181,6 @@ static void change_directory(int argc, char *argv[]){
 }
 
 
-
 int main(void)
 {
     char input[INPUT_SIZE];
@@ -227,11 +226,28 @@ int main(void)
             continue;
         }
 
-        // History handling
+        //history handling
+
+        // replaces input with old command
+        if (input[0] == '!' && input[1] >= '0' && input[1]<='9') {
+            char *end = NULL;
+            size_t i = (size_t)strtol(input + 1, &end, 10);
+
+            if (!cmd_history || *end != '\0' || i >= history.length) {
+                fprintf(stderr, "%s: command not found\n", input);
+                continue;
+            }
+
+            strcpy(input, history.commands[i]);
+            printf("myshell> %s\n", input);
+        }
+
+        // push all commands into history except for history commands
         if(cmd_history && input[0]!='!'){
             vector_push(&history, input);
         }
 
+        // print out the command history mapping 
         if(strcmp(input, "!!")==0){
             print_history(&history);
             continue;
@@ -395,5 +411,10 @@ int main(void)
     }
 
     // if the cmd_history flag is set, call vector_free here
+
+    if(cmd_history) {
+        vector_free(&history);
+    }
+
     return 0;
 }
