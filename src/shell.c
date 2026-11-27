@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "executor.h"
 #include "fifo.h"
 #include "priority.h"
+#include "history.h"
 
 #define INPUT_SIZE 1024
 
@@ -152,6 +154,7 @@ static void run_priority_jobs(void)
     pending_count = 0;
 }
 
+
 static void change_directory(int argc, char *argv[]){
     // arg safety check
     if (argc > 2) {
@@ -177,9 +180,17 @@ static void change_directory(int argc, char *argv[]){
     }
 }
 
+
 int main(void)
 {
     char input[INPUT_SIZE];
+    bool cmd_history = true;
+
+    Vector history;
+    if (!init_vector(&history)){
+        fprintf(stderr, "Could not allocate command history; history will not be available this session\n");
+        cmd_history = false;
+    }
 
     while (1) {
         printf("myshell> ");
@@ -212,6 +223,33 @@ int main(void)
 
         // Ignore empty commands.
         if (input[0] == '\0') {
+            continue;
+        }
+
+        //history handling
+
+        // replaces input with old command
+        if (input[0] == '!' && input[1] >= '0' && input[1]<='9') {
+            char *end = NULL;
+            size_t i = (size_t)strtol(input + 1, &end, 10);
+
+            if (!cmd_history || *end != '\0' || i >= history.length) {
+                fprintf(stderr, "%s: command not found\n", input);
+                continue;
+            }
+
+            strcpy(input, history.commands[i]);
+            printf("myshell> %s\n", input);
+        }
+
+        // push all commands into history except for history commands
+        if(cmd_history && input[0]!='!'){
+            vector_push(&history, input);
+        }
+
+        // print out the command history mapping 
+        if(strcmp(input, "!!")==0){
+            print_history(&history);
             continue;
         }
 
@@ -370,6 +408,12 @@ int main(void)
         if (status != 0) {
             fprintf(stderr, "Command exited with status %d\n", status);
         }
+    }
+
+    // if the cmd_history flag is set, call vector_free here
+
+    if(cmd_history) {
+        vector_free(&history);
     }
 
     return 0;
